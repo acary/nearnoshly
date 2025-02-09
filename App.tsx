@@ -16,7 +16,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
-  Linking,
   Alert,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -27,15 +26,15 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 // Constants for the preference options
 const CUISINES = [
   { id: 'american', name: 'American', icon: 'food-steak' },
-  { id: 'italian', name: 'Italian', icon: 'pasta' },
-  { id: 'japanese', name: 'Japanese', icon: 'food-sushi' },
-  { id: 'chinese', name: 'Chinese', icon: 'food-drumstick' },
+  { id: 'italian', name: 'Italian', icon: 'noodles' },
+  { id: 'japanese', name: 'Japanese', icon: 'rice' },
+  { id: 'chinese', name: 'Chinese', icon: 'bowl-mix' },
   { id: 'mexican', name: 'Mexican', icon: 'taco' },
-  { id: 'indian', name: 'Indian', icon: 'food-curry' },
+  { id: 'indian', name: 'Indian', icon: 'bowl' },
   { id: 'thai', name: 'Thai', icon: 'noodles' },
-  { id: 'mediterranean', name: 'Mediterranean', icon: 'food-greek' },
+  { id: 'mediterranean', name: 'Mediterranean', icon: 'food' },
   { id: 'french', name: 'French', icon: 'food-croissant' },
-  { id: 'korean', name: 'Korean', icon: 'food-variant' },
+  { id: 'korean', name: 'Korean', icon: 'bowl-mix-outline' },
 ];
 
 const TIME_PERIODS = [
@@ -116,28 +115,8 @@ function App(): React.JSX.Element {
       summary || 'No preferences selected',
       [
         {
-          text: 'Cancel',
-          style: 'cancel'
-        },
-        {
-          text: 'Search',
-          onPress: async () => {
-            const queryParams = new URLSearchParams({
-              time: state.selectedTime || '',
-              cuisines: state.selectedCuisines.join(','),
-              price: state.priceRange || '',
-              rating: state.rating.toString(),
-              radius: state.radius.toString(),
-            });
-
-            const mailtoLink = `mailto:info@andycary.com?subject=Restaurant%20Search&body=Search%20Parameters:%0A${queryParams.toString()}`;
-            
-            try {
-              await Linking.openURL(mailtoLink);
-            } catch (error) {
-              console.error('Error opening email:', error);
-            }
-          }
+          text: 'OK',
+          onPress: () => console.log('Search preferences:', summary)
         }
       ]
     );
