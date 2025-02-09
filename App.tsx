@@ -56,10 +56,10 @@ interface PreferenceState {
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const [state, setState] = useState<PreferenceState>({
-    expandedSection: null,
-    selectedCuisines: [],
-    selectedTime: null,
-    priceRange: null,
+    expandedSection: 'Time of Day',
+    selectedCuisines: ['american'],
+    selectedTime: 'dinner',
+    priceRange: '$$',
     rating: 3,
     radius: 5,
   });
