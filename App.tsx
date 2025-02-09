@@ -181,6 +181,7 @@ function App(): React.JSX.Element {
         </Text>
         
         <ScrollView style={styles.scrollView}>
+          {/* 1. Time of Day */}
           {renderSection('Time of Day', (
             <View style={styles.timeGrid}>
               {TIME_PERIODS.map(period => (
@@ -214,6 +215,39 @@ function App(): React.JSX.Element {
             </View>
           ))}
 
+          {/* 2. Distance */}
+          {renderSection('Distance', (
+            <View>
+              <Slider
+                style={styles.slider}
+                minimumValue={1}
+                maximumValue={20}
+                value={state.radius}
+                onValueChange={(value) => setState(prev => ({ ...prev, radius: value }))}
+                step={1}
+              />
+              <Text style={styles.sliderText}>Within {Math.round(state.radius)} miles</Text>
+            </View>
+          ))}
+
+          {/* 3. Price */}
+          {renderSection('Price', (
+            <View style={styles.priceGrid}>
+              {['$', '$$', '$$$', '$$$$'].map(price => (
+                <TouchableOpacity
+                  key={price}
+                  style={[styles.priceItem, state.priceRange === price && styles.selectedItem]}
+                  onPress={() => selectPrice(price)}
+                >
+                  <Text style={[styles.priceText, state.priceRange === price && styles.selectedText]}>
+                    {price}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+
+          {/* 4. Cuisines */}
           {renderSection('Cuisines', (
             <View style={styles.cuisineGrid}>
               {CUISINES.map(cuisine => (
@@ -235,39 +269,6 @@ function App(): React.JSX.Element {
               ))}
             </View>
           ))}
-
-          {renderSection('Distance', (
-            <View>
-              <Slider
-                style={styles.slider}
-                minimumValue={1}
-                maximumValue={20}
-                value={state.radius}
-                onValueChange={(value) => setState(prev => ({ ...prev, radius: value }))}
-                step={1}
-              />
-              <Text style={styles.sliderText}>Within {Math.round(state.radius)} miles</Text>
-            </View>
-          ))}
-
-          {renderSection('Price', (
-            <View style={styles.priceGrid}>
-              {['$', '$$', '$$$', '$$$$'].map(price => (
-                <TouchableOpacity
-                  key={price}
-                  style={[styles.priceItem, state.priceRange === price && styles.selectedItem]}
-                  onPress={() => selectPrice(price)}
-                >
-                  <Text style={[styles.priceText, state.priceRange === price && styles.selectedText]}>
-                    {price}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          ))}
-
-          {/* Add other sections here following the same pattern */}
-          
         </ScrollView>
 
         <TouchableOpacity
