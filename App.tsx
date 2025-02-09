@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
+  Alert,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Slider from '@react-native-community/slider';
@@ -99,21 +100,47 @@ function App(): React.JSX.Element {
   };
 
   const handleSubmit = async () => {
-    const queryParams = new URLSearchParams({
-      time: state.selectedTime || '',
-      cuisines: state.selectedCuisines.join(','),
-      price: state.priceRange || '',
-      rating: state.rating.toString(),
-      radius: state.radius.toString(),
-    });
+    // Create a friendly summary of selections
+    const summary = [
+      state.selectedTime ? `Time: ${TIME_PERIODS.find(t => t.id === state.selectedTime)?.name}` : null,
+      state.selectedCuisines.length > 0 ? 
+        `Cuisines: ${state.selectedCuisines.map(c => 
+          CUISINES.find(cuisine => cuisine.id === c)?.name).join(', ')}` : null,
+      `Distance: Within ${Math.round(state.radius)} miles`,
+      state.priceRange ? `Price: ${state.priceRange}` : null,
+    ].filter(Boolean).join('\n');
 
-    const mailtoLink = `mailto:info@andycary.com?subject=Restaurant%20Search&body=Search%20Parameters:%0A${queryParams.toString()}`;
-    
-    try {
-      await Linking.openURL(mailtoLink);
-    } catch (error) {
-      console.error('Error opening email:', error);
-    }
+    // Show alert with selections
+    Alert.alert(
+      'Your Preferences',
+      summary || 'No preferences selected',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Search',
+          onPress: async () => {
+            const queryParams = new URLSearchParams({
+              time: state.selectedTime || '',
+              cuisines: state.selectedCuisines.join(','),
+              price: state.priceRange || '',
+              rating: state.rating.toString(),
+              radius: state.radius.toString(),
+            });
+
+            const mailtoLink = `mailto:info@andycary.com?subject=Restaurant%20Search&body=Search%20Parameters:%0A${queryParams.toString()}`;
+            
+            try {
+              await Linking.openURL(mailtoLink);
+            } catch (error) {
+              console.error('Error opening email:', error);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderSection = (title: string, content: React.ReactNode) => (
@@ -181,6 +208,58 @@ function App(): React.JSX.Element {
                     state.selectedTime === period.id && styles.selectedText,
                   ]}>
                     {period.hours}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+
+          {renderSection('Cuisines', (
+            <View style={styles.cuisineGrid}>
+              {CUISINES.map(cuisine => (
+                <TouchableOpacity
+                  key={cuisine.id}
+                  style={[
+                    styles.cuisineItem,
+                    state.selectedCuisines.includes(cuisine.id) && styles.selectedItem,
+                  ]}
+                  onPress={() => toggleCuisine(cuisine.id)}
+                >
+                  <MaterialCommunityIcons
+                    name={cuisine.icon}
+                    size={24}
+                    color={state.selectedCuisines.includes(cuisine.id) ? '#fff' : '#666'}
+                  />
+                  <Text style={styles.cuisineText}>{cuisine.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+
+          {renderSection('Distance', (
+            <View>
+              <Slider
+                style={styles.slider}
+                minimumValue={1}
+                maximumValue={20}
+                value={state.radius}
+                onValueChange={(value) => setState(prev => ({ ...prev, radius: value }))}
+                step={1}
+              />
+              <Text style={styles.sliderText}>Within {Math.round(state.radius)} miles</Text>
+            </View>
+          ))}
+
+          {renderSection('Price', (
+            <View style={styles.priceGrid}>
+              {['$', '$$', '$$$', '$$$$'].map(price => (
+                <TouchableOpacity
+                  key={price}
+                  style={[styles.priceItem, state.priceRange === price && styles.selectedItem]}
+                  onPress={() => selectPrice(price)}
+                >
+                  <Text style={[styles.priceText, state.priceRange === price && styles.selectedText]}>
+                    {price}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -287,6 +366,48 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#fff',
+  },
+  slider: {
+    width: '100%',
+    height: 40,
+  },
+  sliderText: {
+    textAlign: 'center',
+    marginTop: 8,
+    color: '#666',
+  },
+  cuisineGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  cuisineItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+    marginBottom: 8,
+    width: '48%',
+  },
+  cuisineText: {
+    marginLeft: 8,
+    fontSize: 14,
+  },
+  priceGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  priceItem: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+    flex: 1,
+    marginHorizontal: 4,
+    alignItems: 'center',
+  },
+  priceText: {
+    fontSize: 16,
   },
 });
 
